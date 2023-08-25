@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/leaf.CR2
 
 # Logs
 logs
