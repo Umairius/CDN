@@ -7,7 +7,7 @@ import axios from 'axios';
 @Injectable()
 export class TusUploadService {
   async uploadFile(): Promise<void> {
-    const filePath = path.join('D:\\Projects\\CDN\\cdn\\', 'leaf.CR2'); // Update the file path
+    const filePath = path.join('D:\\Memes\\a04EM3Z_700b.jpg', ); // Update the file path
 
     const tusServerURL = 'http://localhost:1080/files'; // Tus server URL
 
@@ -17,7 +17,7 @@ export class TusUploadService {
         'Tus-Resumable': '1.0.0',
         'Upload-Length': fs.statSync(filePath).size.toString(),
         'Upload-Metadata':
-          'filename ' + Buffer.from('cat.jpg').toString('base64'),
+          'filename ' + Buffer.from('D:\\Memes\\a04EM3Z_700b.jpg').toString('base64'),
       },
       maxRedirects: 0, // Prevent automatic redirection
     });
