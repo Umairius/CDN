@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { TusUploadService } from './tus-service'
+import { TusUploadService } from './tus-service';
 
 @Controller('init')
 export class TusUploadController {
