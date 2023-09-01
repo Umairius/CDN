@@ -7,7 +7,7 @@ import { TusServerModule } from './server/tus-module';
 import { TusClientModule } from './client/tus-module';
 
 @Module({
-  imports: [UploadModule,TusServerModule,TusClientModule],
+  imports: [UploadModule, TusServerModule, TusClientModule],
   controllers: [AppController, UploadController],
   providers: [AppService],
 })

@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { TusUploadService } from './tus-service'
+import { TusUploadService } from './tus-service';
 
 @Controller('init')
 export class TusUploadController {
@@ -7,6 +7,6 @@ export class TusUploadController {
 
   @Post()
   async uploadFile(): Promise<void> {
-    await this.uploadService.uploadFile();
+    await this.uploadService.uploadFiles();
   }
 }

@@ -4,7 +4,6 @@ import { FileStore } from '@tus/file-store';
 import { TusServerController } from './tus-controller';
 import { TusService } from './tus-service';
 
-
 @Global()
 @Module({
   providers: [
@@ -20,8 +19,8 @@ import { TusService } from './tus-service';
     },
     TusService,
   ],
-  controllers: [ TusServerController ],
-  
+  controllers: [TusServerController],
+
   exports: ['TUS_SERVER', TusService],
 })
 export class TusServerModule {}
