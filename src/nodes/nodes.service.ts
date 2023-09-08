@@ -12,9 +12,9 @@ export interface NodeInfo {
 @Injectable()
 export class NodeService {
   private nodes: NodeInfo[] = [
-    { ip: 'localhost', port: 1080, privelleged: true }
+    { ip: 'localhost', port: 1080, privelleged: true },
     //  { ip: 'localhost', port: 1081, privelleged: false }
-];
+  ];
 
   addNode(nodeInfo: NodeInfo) {
     this.nodes.push(nodeInfo);

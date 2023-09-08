@@ -12,9 +12,7 @@ import * as uuid from 'uuid';
 export class TusUploadService {
   static filesToUpload: string[] = fs.readdirSync('../files');
   
-  constructor(private readonly nodesService: NodeService){
-
-  }
+  constructor(private readonly nodesService: NodeService) {}
 
   async uploadFiles(): Promise<void> {
     const nodes = this.nodesService.listNodes();
@@ -38,28 +36,28 @@ export class TusUploadService {
     }
     
     await Promise.all(uploadPromises);
-    
   }
 
-  private async uploadFileToNodes(filePath: string, nodes: NodeInfo[], fileId: string,): Promise<void> {
-    const urls: string[] = nodes.map((node) => node.ip + ":" + node.port);
-    const uploadedFolderPath = path.join(__dirname, '../uploadedfiles');
-  const relativePath = path.relative(uploadedFolderPath, filePath); 
-  console.log("relative path",relativePath)
-    console.log("urls",urls)
+  private async uploadFileToNodes(
+    filePath: string,
+    nodes: NodeInfo[],
+    fileId: string,
+  ): Promise<void> {
+    const urls: string[] = nodes.map((node) => node.ip + ':' + node.port);
+
+ 
+    console.log('urls', urls);
     const uploadPromises = urls.map(async (node) => {
       try {
          await axios.post("http://" + node + '/uploadedfiles' , null, {
           headers: {
             'Tus-Resumable': '1.0.0',
             'Upload-Length': fs.statSync(filePath).size.toString(),
-            'Upload-Metadata': `filename ${Buffer.from(relativePath).toString(
+            'Upload-Metadata': `filename ${Buffer.from(filePath).toString(
               'base64',
             )}`,
           },
         });
-      
-        
       
         const fileStream = fs.createReadStream(filePath);
         const upload = new Upload(fileStream, {
@@ -73,7 +71,10 @@ export class TusUploadService {
             console.log(bytesUploaded, bytesTotal, percentage + '%');
           },
           onSuccess: function () {
-            console.log("upload file path",'http://' + node + '/' + 'uploadedfiles'+  '/'+ fileId)
+            console.log(
+              'upload file path',
+              'http://' + node + '/' + 'uploadedfiles' + '/' + fileId,
+            );
             console.log('Upload completed');
           },
         });
