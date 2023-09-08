@@ -1,0 +1,17 @@
+version: '3'
+services:
+  node-1:
+    image: cdn:v3
+    ports:
+      - "3001:3000"
+      - "1080:1080"
+  node-2:
+    image: cdn:v3
+    ports:
+      - "3002:3000"
+      - "1081:1080"
+  node-3:
+    image: cdn:v3
+    ports:
+      - "3003:3000"
+      - "1082:1080"

@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UploadModule } from './upload/upload.module';
-import { UploadController } from './upload/upload.controller';
+
 import { TusServerModule } from './server/tus-module';
 import { TusClientModule } from './client/tus-module';
+import { NodesModule } from './nodes/nodes.module';
 
 @Module({
-  imports: [UploadModule, TusServerModule, TusClientModule],
-  controllers: [AppController, UploadController],
+  imports: [TusServerModule, TusClientModule, NodesModule],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

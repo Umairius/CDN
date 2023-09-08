@@ -3,56 +3,67 @@ import { Upload } from 'tus-js-client';
 import * as path from 'path';
 import * as fs from 'fs';
 import axios from 'axios';
+import { NodeService, NodeInfo} from 'src/nodes/nodes.service';
+
 
 import * as uuid from 'uuid';
 
 @Injectable()
 export class TusUploadService {
-  static filesToUpload: string[] = fs.readdirSync('D:\\Projects\\CDN\\files\\');
-  static nodes: string[] = ['http://localhost:1080/files'];
+  static filesToUpload: string[] = fs.readdirSync('../files');
+  
+  constructor(private readonly nodesService: NodeService){
+
+  }
 
   async uploadFiles(): Promise<void> {
+    const nodes = this.nodesService.listNodes();
+    // console.log(nodes)
     const fileNames = TusUploadService.filesToUpload;
+    // console.log("filenames",fileNames)
     const uploadPromises = [];
 
     for (const fileName of fileNames) {
-      const filePath = path.join('D:\\Projects\\CDN\\files\\', fileName);
+      const filePath = path.join(process.cwd(),  '../files', fileName);
+      console.log("filepath",filePath)
+      //here ulid can be used to speed up the performance
       const fileId = uuid.v4(); // Generate a unique fileId for each file
 
       const uploadPromise = this.uploadFileToNodes(
         filePath,
-        TusUploadService.nodes,
+        nodes,
         fileId,
       );
       uploadPromises.push(uploadPromise);
     }
-    console.log(uploadPromises);
+    
     await Promise.all(uploadPromises);
-    console.log(uploadPromises);
+    
   }
 
-  private async uploadFileToNodes(
-    filePath: string,
-    nodes: string[],
-    fileId: string,
-  ): Promise<void> {
-    const uploadPromises = nodes.map(async (node) => {
+  private async uploadFileToNodes(filePath: string, nodes: NodeInfo[], fileId: string,): Promise<void> {
+    const urls: string[] = nodes.map((node) => node.ip + ":" + node.port);
+    const uploadedFolderPath = path.join(__dirname, '../uploadedfiles');
+  const relativePath = path.relative(uploadedFolderPath, filePath); 
+  console.log("relative path",relativePath)
+    console.log("urls",urls)
+    const uploadPromises = urls.map(async (node) => {
       try {
-        const response = await axios.post(node, null, {
+         await axios.post("http://" + node + '/uploadedfiles' , null, {
           headers: {
             'Tus-Resumable': '1.0.0',
             'Upload-Length': fs.statSync(filePath).size.toString(),
-            'Upload-Metadata': `filename ${Buffer.from('cat.jpg').toString(
+            'Upload-Metadata': `filename ${Buffer.from(relativePath).toString(
               'base64',
             )}`,
           },
         });
-        console.log(response)
-
+      
+        
+      
         const fileStream = fs.createReadStream(filePath);
-        console.log(node + '/' + fileId);
         const upload = new Upload(fileStream, {
-          endpoint: `${node}/${fileId}`,
+          endpoint: `http://${node}/uploadedfiles/${fileId}`,
           retryDelays: [0, 1000, 3000, 5000],
           onError: function (error) {
             console.log('Failed because: ' + error);
@@ -62,6 +73,7 @@ export class TusUploadService {
             console.log(bytesUploaded, bytesTotal, percentage + '%');
           },
           onSuccess: function () {
+            console.log("upload file path",'http://' + node + '/' + 'uploadedfiles'+  '/'+ fileId)
             console.log('Upload completed');
           },
         });
