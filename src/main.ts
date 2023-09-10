@@ -13,8 +13,6 @@ async function bootstrap() {
   // pass the port number over here as an argument
   tusServer.listen(1080, () =>
     console.log('Tus server listening on port 1080'),
-
   );
-
 }
 bootstrap();

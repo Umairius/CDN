@@ -11,8 +11,8 @@ import { TusService } from './tus-service';
       provide: 'TUS_SERVER',
       useFactory: () => {
         const server = new Server({
-          path: '/files',
-          datastore: new FileStore({ directory: './files' }),
+          path: '/uploadedfiles',
+          datastore: new FileStore({ directory: '../uploadedfiles' }),
         });
         return server;
       },

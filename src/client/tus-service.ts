@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 import { Upload } from 'tus-js-client';
 import * as path from 'path';
 import * as fs from 'fs';
 import axios from 'axios';
 import { NodeService, NodeInfo } from 'src/nodes/nodes.service';
-import * as uuid from 'uuid';
+import { ulid } from 'ulid';
+import { FileStoreService } from 'src/filestore/filestore.service';
+import { FilestoreModule } from 'src/filestore/filestore.module';
+
+
+
+
+@Module({
+  imports: [FilestoreModule],
+})
 
 @Injectable()
 export class TusUploadService {
-  static filesToUpload: string[] = fs.readdirSync('../files');
+  
+  constructor(private readonly nodesService: NodeService,
+              private readonly fileStoreService: FileStoreService) {}
 
-  constructor(private readonly nodesService: NodeService) {}
+  
+
 
   async uploadFiles(): Promise<void> {
+
+    const filesToUpload =  this.fileStoreService.getFilesToUpload();
+
     const nodes = this.nodesService.listNodes();
-    const fileNames = TusUploadService.filesToUpload;
+    const fileNames = filesToUpload;
     const uploadPromises = [];
 
     for (const fileName of fileNames) {
       const filePath = path.join(process.cwd(), '../files', fileName);
-      const fileId = uuid.v4();
-
+      const fileId = ulid();
+      console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes)
       const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileId);
       uploadPromises.push(uploadPromise);
     }
