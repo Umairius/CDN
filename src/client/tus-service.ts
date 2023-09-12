@@ -8,34 +8,28 @@ import { ulid } from 'ulid';
 import { FileStoreService } from 'src/filestore/filestore.service';
 import { FilestoreModule } from 'src/filestore/filestore.module';
 
-
-
-
 @Module({
   imports: [FilestoreModule],
 })
-
 @Injectable()
 export class TusUploadService {
-  
-  constructor(private readonly nodesService: NodeService,
-              private readonly fileStoreService: FileStoreService) {}
-
-  
-
+  constructor(
+    private readonly nodesService: NodeService,
+    private readonly fileStoreService: FileStoreService,
+  ) {}
 
   async uploadFiles(): Promise<void> {
-
-    const filesToUpload =  this.fileStoreService.getFilesToUpload();
+    const filesToUpload = this.fileStoreService.getFilesToUpload();
 
     const nodes = this.nodesService.listNodes();
+
     const fileNames = filesToUpload;
     const uploadPromises = [];
 
     for (const fileName of fileNames) {
       const filePath = path.join(process.cwd(), '../files', fileName);
       const fileId = ulid();
-      console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes)
+      console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes);
       const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileId);
       uploadPromises.push(uploadPromise);
     }
@@ -54,15 +48,15 @@ export class TusUploadService {
 
     const uploadPromises = urls.map(async (node) => {
       try {
-        await axios.post(node, null, {
-          headers: {
-            'Tus-Resumable': '1.0.0',
-            'Upload-Length': fs.statSync(filePath).size.toString(),
-            'Upload-Metadata': `filename ${Buffer.from(filePath).toString(
-              'base64',
-            )}`,
-          },
-        });
+        // await axios.post(node, null, {
+        //   headers: {
+        //     'Tus-Resumable': '1.0.0',
+        //     'Upload-Length': fs.statSync(filePath).size.toString(),
+        //     'Upload-Metadata': `filename ${Buffer.from(filePath).toString(
+        //       'base64',
+        //     )}`,
+        //   },
+        // });
 
         const fileStream = fs.createReadStream(filePath);
         const upload = new Upload(fileStream, {

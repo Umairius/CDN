@@ -1,39 +1,35 @@
-import { Injectable } from "@nestjs/common";
-import * as fs from 'fs';
+import { Injectable } from '@nestjs/common';
+// import chokidar from 'chokidar';
+const chokidar = require('chokidar');
 
 @Injectable()
 export class FileStoreService {
+  private directoryPath: string = '../files';
+  private filesToUpload: string[] = [];
 
+  constructor() {
+    this.initializeFileWatcher();
+  }
 
-    
-    private directoryPath: string = '../files'; // Replace with your directory path
-    private filesToUpload: string[] = []; // Initialize with an empty array
+  private initializeFileWatcher() {
+    console.log(chokidar);
+    const watcher = chokidar.watch(this.directoryPath);
 
-    constructor() {
-        // Initialize the list of files when the service is created
-        this.updateFilesToUpload();
-    }
+    watcher.on('add', (filePath) => {
+      console.log(`New file detected: ${filePath}`);
+      this.filesToUpload.push(filePath);
+    });
 
-    // Function to update the list of files to upload
-    private updateFilesToUpload() {
-        fs.readdir(this.directoryPath, (err, files) => {
-            if (err) {
-                console.error('Error reading directory:', err);
-                return;
-            }
-            // Update the list of files with the new file names
-            this.filesToUpload = files;
-            console.log('Updated files to upload:', this.filesToUpload);
-        });
-    }
+    watcher.on('change', (filePath) => {
+      console.log(`File modified: ${filePath}`);
+    });
 
-    // Function to get the current list of files to upload
-    getFilesToUpload(): string[] {
-        return this.filesToUpload;
-    }
+    watcher.on('unlink', (filePath) => {
+      console.log(`File deleted: ${filePath}`);
+    });
+  }
 
-    // Call this function whenever there is a change in the directory
-    onDirectoryChange() {
-        this.updateFilesToUpload();
-    }
+  getFilesToUpload(): string[] {
+    return this.filesToUpload;
+  }
 }

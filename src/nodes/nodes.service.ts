@@ -13,7 +13,7 @@ export interface NodeInfo {
 export class NodeService {
   private nodes: NodeInfo[] = [
     { ip: 'localhost', port: 1080, privelleged: true },
-    { ip: 'localhost', port: 1081, privelleged: false },
+    // { ip: 'localhost', port: 1081, privelleged: false },
   ];
 
   addNode(nodeInfo: NodeInfo) {
