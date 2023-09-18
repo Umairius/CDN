@@ -20,7 +20,6 @@ export class TusUploadService {
   ) {}
 
   async uploadFiles(): Promise<void> {
-  
     //a queue should be implemented over here.
 
     const filesToUpload = this.fileStoreService.getFilesToUpload();
@@ -33,9 +32,9 @@ export class TusUploadService {
     for (const fileName of fileNames) {
       const filePath = path.join(process.cwd(), '../files', fileName);
       const fileId = ulid();
-      
+
       console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes);
-      const uploadPromise = this.uploadFileToNodes(filePath, nodes,fileName);
+      const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileName);
       uploadPromises.push(uploadPromise);
     }
 
@@ -56,15 +55,13 @@ export class TusUploadService {
         const response = await axios.post(node, null, {
           headers: {
             'Tus-Resumable': '1.0.0',
-            'Upload-Length':   fs.statSync(filePath).size.toString(),
+            'Upload-Length': fs.statSync(filePath).size.toString(),
             'Upload-Metadata': `${Buffer.from(filename.split('\\')[2])}`,
-            'Content-Type': 'image/jpeg'
-            
-  
+            'Content-Type': 'image/jpeg',
           },
         });
 
-        const fileId = response.headers.location.split('/')[4]
+        const fileId = response.headers.location.split('/')[4];
         // exit(0);
         // We can also map each of the filenames to the uuid that is being generated
 

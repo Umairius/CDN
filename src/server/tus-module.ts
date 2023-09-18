@@ -19,15 +19,11 @@ import { exit } from 'process';
 
             if (!metadataHeader) {
               console.log('No metadata header');
-              // exit(1)   
-
-          }
-          console.log('metadataHeader: ', metadataHeader);
-              return metadataHeader.toString();
-
-          }  
-      
-          
+              // exit(1)
+            }
+            console.log('metadataHeader: ', metadataHeader);
+            return metadataHeader.toString();
+          },
         });
         return server;
       },

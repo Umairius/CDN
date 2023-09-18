@@ -9,7 +9,13 @@ import { UploadTriggerModule } from './upload-trigger/upload-trigger.module';
 // import { UploadTriggerService } from './upload-trigger/upload-trigger.service';
 
 @Module({
-  imports: [TusServerModule, TusClientModule, NodesModule, FilestoreModule, UploadTriggerModule],
+  imports: [
+    TusServerModule,
+    TusClientModule,
+    NodesModule,
+    FilestoreModule,
+    UploadTriggerModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

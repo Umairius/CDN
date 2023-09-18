@@ -9,7 +9,6 @@ export class FileStoreService {
   private filesToUpload: string[] = [];
   public readonly eventEmitter = new EventEmitter();
 
-
   constructor() {
     this.initializeFileWatcher();
   }
@@ -21,10 +20,9 @@ export class FileStoreService {
     watcher.on('add', (filePath) => {
       console.log(`New file detected: ${filePath}`);
       this.filesToUpload.push(filePath);
-      
-      this.eventEmitter.emit('add', filePath);
-      console.log("emitted add event")
 
+      this.eventEmitter.emit('add', filePath);
+      console.log('emitted add event');
     });
 
     watcher.on('change', (filePath) => {
