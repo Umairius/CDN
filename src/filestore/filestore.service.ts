@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 // import chokidar from 'chokidar';
 const chokidar = require('chokidar');
+import EventEmitter from 'events';
 
 @Injectable()
 export class FileStoreService {
   private directoryPath: string = '../files';
   private filesToUpload: string[] = [];
+  public readonly eventEmitter = new EventEmitter();
+
 
   constructor() {
     this.initializeFileWatcher();
@@ -18,6 +21,10 @@ export class FileStoreService {
     watcher.on('add', (filePath) => {
       console.log(`New file detected: ${filePath}`);
       this.filesToUpload.push(filePath);
+      
+      this.eventEmitter.emit('add', filePath);
+      console.log("emitted add event")
+
     });
 
     watcher.on('change', (filePath) => {
@@ -31,5 +38,9 @@ export class FileStoreService {
 
   getFilesToUpload(): string[] {
     return this.filesToUpload;
+  }
+
+  getEventEmitter(): EventEmitter {
+    return this.eventEmitter;
   }
 }

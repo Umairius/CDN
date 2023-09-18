@@ -7,6 +7,7 @@ import { NodeService, NodeInfo } from 'src/nodes/nodes.service';
 import { ulid } from 'ulid';
 import { FileStoreService } from 'src/filestore/filestore.service';
 import { FilestoreModule } from 'src/filestore/filestore.module';
+import { exit } from 'process';
 
 @Module({
   imports: [FilestoreModule],
@@ -19,6 +20,9 @@ export class TusUploadService {
   ) {}
 
   async uploadFiles(): Promise<void> {
+  
+    //a queue should be implemented over here.
+
     const filesToUpload = this.fileStoreService.getFilesToUpload();
 
     const nodes = this.nodesService.listNodes();
@@ -29,8 +33,9 @@ export class TusUploadService {
     for (const fileName of fileNames) {
       const filePath = path.join(process.cwd(), '../files', fileName);
       const fileId = ulid();
+      
       console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes);
-      const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileId);
+      const uploadPromise = this.uploadFileToNodes(filePath, nodes,fileName);
       uploadPromises.push(uploadPromise);
     }
 
@@ -40,7 +45,7 @@ export class TusUploadService {
   private async uploadFileToNodes(
     filePath: string,
     nodes: NodeInfo[],
-    fileId: string,
+    filename: string,
   ): Promise<void> {
     const urls: string[] = nodes.map(
       (node) => `http://${node.ip}:${node.port}/uploadedfiles`, // Specify the "uploadedfiles" endpoint
@@ -48,15 +53,20 @@ export class TusUploadService {
 
     const uploadPromises = urls.map(async (node) => {
       try {
-        // await axios.post(node, null, {
-        //   headers: {
-        //     'Tus-Resumable': '1.0.0',
-        //     'Upload-Length': fs.statSync(filePath).size.toString(),
-        //     'Upload-Metadata': `filename ${Buffer.from(filePath).toString(
-        //       'base64',
-        //     )}`,
-        //   },
-        // });
+        const response = await axios.post(node, null, {
+          headers: {
+            'Tus-Resumable': '1.0.0',
+            'Upload-Length':   fs.statSync(filePath).size.toString(),
+            'Upload-Metadata': `${Buffer.from(filename.split('\\')[2])}`,
+            'Content-Type': 'image/jpeg'
+            
+  
+          },
+        });
+
+        const fileId = response.headers.location.split('/')[4]
+        // exit(0);
+        // We can also map each of the filenames to the uuid that is being generated
 
         const fileStream = fs.createReadStream(filePath);
         const upload = new Upload(fileStream, {

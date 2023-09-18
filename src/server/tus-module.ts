@@ -3,6 +3,7 @@ import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { TusServerController } from './tus-controller';
 import { TusService } from './tus-service';
+import { exit } from 'process';
 
 @Global()
 @Module({
@@ -13,6 +14,20 @@ import { TusService } from './tus-service';
         const server = new Server({
           path: '/uploadedfiles',
           datastore: new FileStore({ directory: '../uploadedfiles' }),
+          namingFunction(req) {
+            const metadataHeader = req.headers['upload-metadata'];
+
+            if (!metadataHeader) {
+              console.log('No metadata header');
+              // exit(1)   
+
+          }
+          console.log('metadataHeader: ', metadataHeader);
+              return metadataHeader.toString();
+
+          }  
+      
+          
         });
         return server;
       },
