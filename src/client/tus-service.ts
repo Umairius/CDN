@@ -56,7 +56,7 @@ export class TusUploadService {
           headers: {
             'Tus-Resumable': '1.0.0',
             'Upload-Length': fs.statSync(filePath).size.toString(),
-            'Upload-Metadata': `${Buffer.from(filename.split('\\')[2])}`,
+            'Upload-Metadata': `${filename.split('\\')[2].toString()}`,
             'Content-Type': 'image/jpeg',
           },
         });
@@ -67,10 +67,13 @@ export class TusUploadService {
 
         const fileStream = fs.createReadStream(filePath);
         const upload = new Upload(fileStream, {
-          endpoint: `${node}/${fileId}`, // Set the endpoint to "uploadedfiles"
+          headers: {
+            'Upload-Address': fileId,
+          },
+          endpoint: `${node}`, // Set the endpoint to "uploadedfiles"
           retryDelays: [0, 1000, 3000, 5000],
           onError: function (error) {
-            console.log('Failed because: ' + error);
+            console.log('Failed because: ' + error.stack);
           },
           onProgress: function (bytesUploaded, bytesTotal) {
             const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);

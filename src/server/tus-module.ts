@@ -4,6 +4,7 @@ import { FileStore } from '@tus/file-store';
 import { TusServerController } from './tus-controller';
 import { TusService } from './tus-service';
 import { exit } from 'process';
+import { v4 as uuid } from 'uuid';
 
 @Global()
 @Module({
@@ -14,15 +15,21 @@ import { exit } from 'process';
         const server = new Server({
           path: '/uploadedfiles',
           datastore: new FileStore({ directory: '../uploadedfiles' }),
+
+
           namingFunction(req) {
             const metadataHeader = req.headers['upload-metadata'];
+            const filenameHeader = req.headers['upload-address'];
 
-            if (!metadataHeader) {
-              console.log('No metadata header');
-              // exit(1)
+            if (filenameHeader) {    
+              return filenameHeader.toString();
+
             }
-            console.log('metadataHeader: ', metadataHeader);
-            return metadataHeader.toString();
+
+            const extractedFilename = Buffer.from(metadataHeader.toString()).toString('utf-8')
+            // console.log('Extracted filename', extractedFilename)
+            
+            return extractedFilename
           },
         });
         return server;
