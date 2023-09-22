@@ -22,7 +22,7 @@ export class FileStoreService {
       this.filesToUpload.push(filePath);
 
       this.eventEmitter.emit('add', filePath);
-      console.log('emitted add event');
+
     });
 
     watcher.on('change', (filePath) => {
@@ -35,7 +35,14 @@ export class FileStoreService {
   }
 
   getFilesToUpload(): string[] {
-    return this.filesToUpload;
+    
+
+    const cleanedUpFiles = this.filesToUpload.map((fname) => {
+      return fname.replace(/^..\\files\\/, '');
+    })
+
+    console.log("cleanedUpFiles:",cleanedUpFiles)
+    return cleanedUpFiles;
   }
 
   getEventEmitter(): EventEmitter {

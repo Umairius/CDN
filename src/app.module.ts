@@ -7,6 +7,7 @@ import { NodesModule } from './nodes/nodes.module';
 import { FilestoreModule } from 'src/filestore/filestore.module';
 import { UploadTriggerModule } from './upload-trigger/upload-trigger.module';
 // import { UploadTriggerService } from './upload-trigger/upload-trigger.service';
+import { NodeFileModule } from './node-file/node-file.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UploadTriggerModule } from './upload-trigger/upload-trigger.module';
     NodesModule,
     FilestoreModule,
     UploadTriggerModule,
+    NodeFileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
