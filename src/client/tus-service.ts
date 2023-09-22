@@ -11,12 +11,8 @@ import { FilestoreModule } from 'src/filestore/filestore.module';
 import { NodeFileModule } from 'src/node-file/node-file.module';
 import { exit } from 'process';
 
-
-
-
 @Module({
-  imports: [FilestoreModule,NodeFileModule],
-
+  imports: [FilestoreModule, NodeFileModule],
 })
 @Injectable()
 export class TusUploadService {
@@ -25,16 +21,14 @@ export class TusUploadService {
     private readonly fileStoreService: FileStoreService,
     private readonly nodeFileService: NodeFileService,
   ) {}
-  
-  onModuleInit() {
-  }
 
+  onModuleInit() {}
 
   async uploadFiles(): Promise<void> {
     //a queue should be implemented over here.
 
-    this.nodeFileService.probeNodeForFiles('http://localhost:3001')
-
+    this.nodeFileService.probeNodeForFiles('http://localhost:3001');
+    console.log('Files probent');
 
     const filesToUpload = this.fileStoreService.getFilesToUpload();
 
@@ -49,7 +43,7 @@ export class TusUploadService {
 
       console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes);
       // const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileName);
-      const uploadPromise = []
+      const uploadPromise = [];
       uploadPromises.push(uploadPromise);
     }
 
@@ -67,12 +61,10 @@ export class TusUploadService {
 
     const uploadPromises = urls.map(async (node) => {
       try {
-        
         // Send my own list of files
         // On the recieving side, it should send me the file it lacks
         // i should keep record of exactly those files for that node.
         // basically i have to create a providor which keeps track of each the list of files to be sent to each node
-
 
         // const files = []
         // const newFilesToUpload = []
@@ -83,10 +75,6 @@ export class TusUploadService {
 
         // console.log(newFilesToUpload)
         // exit(0)
-
-        
-
-
 
         const response = await axios.post(node, null, {
           headers: {

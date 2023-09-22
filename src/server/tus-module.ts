@@ -16,16 +16,13 @@ import { v4 as uuid } from 'uuid';
           path: '/uploadedfiles',
           datastore: new FileStore({ directory: '../uploadedfiles' }),
 
-
           namingFunction(req) {
             const metadataHeader = req.headers['upload-metadata'];
             const filenameHeader = req.headers['upload-address'];
 
-            if (filenameHeader) {    
+            if (filenameHeader) {
               return filenameHeader.toString();
-
             }
-
 
             //let us overthink how the files will be synchronized over nodes
             // right now it is just sending all of the files
@@ -38,9 +35,11 @@ import { v4 as uuid } from 'uuid';
             // Sanity: low
             // Sleep: none
 
-            const extractedFilename = Buffer.from(metadataHeader.toString()).toString('utf-8')
-            
-            return extractedFilename
+            const extractedFilename = Buffer.from(
+              metadataHeader.toString(),
+            ).toString('utf-8');
+
+            return extractedFilename;
           },
         });
         return server;

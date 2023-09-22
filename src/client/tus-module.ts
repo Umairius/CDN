@@ -8,7 +8,7 @@ import { NodeFileService } from 'src/node-file/node-file.service';
 @Module({
   imports: [],
   controllers: [TusUploadController],
-  providers: [TusUploadService, NodeService, FileStoreService,NodeFileService],
+  providers: [TusUploadService, NodeService, FileStoreService, NodeFileService],
   exports: [TusUploadService],
 })
 export class TusClientModule {}
