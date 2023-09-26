@@ -7,15 +7,14 @@ export class FileStoreController {
 
   @Post()
   FileList(@Body('files') filesToCompare: string[]) {
+    const files = this.filestoreService.getFilesToUpload();
+    console.log('files to compare: ', filesToCompare);
+    console.log('files of this node: ', files);
 
-
-    const files = this.filestoreService.getFilesToUpload()
-    console.log("files to compare: ",filesToCompare);
-    console.log("files of this node: ",files);
-    
-    const filesToUpload = filesToCompare.filter((file) => !files.includes(file));
-    console.log("files to upload: ",filesToUpload);
+    const filesToUpload = filesToCompare.filter(
+      (file) => !files.includes(file),
+    );
+    console.log('files to upload: ', filesToUpload);
     return filesToUpload;
-    
   }
 }

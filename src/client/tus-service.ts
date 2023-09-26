@@ -22,99 +22,65 @@ export class TusUploadService {
     private readonly nodeFileService: NodeFileService,
   ) {}
 
-  onModuleInit() {}
-
   async uploadFiles(): Promise<void> {
-    //a queue should be implemented over here.
+    await this.nodeFileService.probeNodeForFiles();
 
-    this.nodeFileService.probeNodeForFiles('http://localhost:3001');
-    console.log('Files probent');
-
-    const filesToUpload = this.fileStoreService.getFilesToUpload();
-
-    const nodes = this.nodesService.listNodes();
-
-    const fileNames = filesToUpload;
-    const uploadPromises = [];
-
-    for (const fileName of fileNames) {
-      const filePath = path.join(process.cwd(), '../files', fileName);
-      const fileId = ulid();
-
-      console.log(`Uploading file ${filePath} ${fileId} to nodes:`, nodes);
-      // const uploadPromise = this.uploadFileToNodes(filePath, nodes, fileName);
-      const uploadPromise = [];
-      uploadPromises.push(uploadPromise);
-    }
-
-    await Promise.all(uploadPromises);
+    NodeFileService.filesForNode.forEach((files, node) => {
+      files.forEach(async (file) => {
+        await this.uploadFileToNodes(node, file);
+        console.log('Uploading file:', file, 'to node:', node);
+      });
+    });
   }
 
   private async uploadFileToNodes(
-    filePath: string,
-    nodes: NodeInfo[],
+    node: string,
     filename: string,
   ): Promise<void> {
-    const urls: string[] = nodes.map(
-      (node) => `http://${node.ip}:${node.port}`, // Specify the "uploadedfiles" endpoint
-    );
+    const url: string = node;
 
-    const uploadPromises = urls.map(async (node) => {
-      try {
-        // Send my own list of files
-        // On the recieving side, it should send me the file it lacks
-        // i should keep record of exactly those files for that node.
-        // basically i have to create a providor which keeps track of each the list of files to be sent to each node
+    console.log('Uploading files:', filename, 'to node:', node);
 
-        // const files = []
-        // const newFilesToUpload = []
+    const filePath = path.join(process.cwd(), '../files', filename);
+    console.log('Filename: ', filename);
 
-        // files.map(async (file) => {
-        //   newFilesToUpload.push(file.split('\\')[2])
-        // },)
+    console.log('FilePathss: ', filePath);
 
-        // console.log(newFilesToUpload)
-        // exit(0)
+    try {
+      const response = await axios.post(url, null, {
+        headers: {
+          'Tus-Resumable': '1.0.0',
+          'Upload-Length': fs.statSync(filePath).size.toString(),
+          'Upload-Metadata': `${filename}`,
+          'Content-Type': 'image/jpeg',
+        },
+      });
 
-        const response = await axios.post(node, null, {
-          headers: {
-            'Tus-Resumable': '1.0.0',
-            'Upload-Length': fs.statSync(filePath).size.toString(),
-            'Upload-Metadata': `${filename.split('\\')[2].toString()}`,
-            'Content-Type': 'image/jpeg',
-          },
-        });
+      const fileId = response.headers.location.split('/')[4];
 
-        const fileId = response.headers.location.split('/')[4];
-        // exit(0);
-        // We can also map each of the filenames to the uuid that is being generated
+      const fileStream = fs.createReadStream(filePath);
+      const upload = new Upload(fileStream, {
+        headers: {
+          'Upload-Address': fileId,
+        },
+        endpoint: `${node}`, // Set the endpoint to "uploadedfiles"
+        retryDelays: [0, 1000, 3000, 5000],
+        onError: function (error) {
+          console.log('Failed because: ' + error.stack);
+        },
+        onProgress: function (bytesUploaded, bytesTotal) {
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          console.log(bytesUploaded, bytesTotal, percentage + '%');
+        },
+        onSuccess: function () {
+          console.log('Upload completed');
+        },
+      });
 
-        const fileStream = fs.createReadStream(filePath);
-        const upload = new Upload(fileStream, {
-          headers: {
-            'Upload-Address': fileId,
-          },
-          endpoint: `${node}`, // Set the endpoint to "uploadedfiles"
-          retryDelays: [0, 1000, 3000, 5000],
-          onError: function (error) {
-            console.log('Failed because: ' + error.stack);
-          },
-          onProgress: function (bytesUploaded, bytesTotal) {
-            const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-            console.log(bytesUploaded, bytesTotal, percentage + '%');
-          },
-          onSuccess: function () {
-            console.log('Upload completed');
-          },
-        });
-
-        // Start the upload
-        upload.start();
-      } catch (error) {
-        console.error('Error uploading file:', error);
-      }
-    });
-
-    await Promise.all(uploadPromises);
+      // Start the upload
+      upload.start();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
   }
 }

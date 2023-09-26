@@ -4,7 +4,8 @@ import { Injectable } from '@nestjs/common';
 
 export interface NodeInfo {
   ip: string;
-  port: number;
+  appPort: number;
+  tusPort: number;
   privelleged: boolean;
   // Add other relevant properties here
 }
@@ -12,8 +13,8 @@ export interface NodeInfo {
 @Injectable()
 export class NodeService {
   private nodes: NodeInfo[] = [
-    { ip: 'localhost', port: 1080, privelleged: true },
-    // { ip: 'localhost', port: 1081, privelleged: false },
+    { ip: 'localhost', tusPort: 1080, appPort: 3000, privelleged: true },
+    { ip: 'localhost', tusPort: 1081, appPort: 3001, privelleged: true },
   ];
 
   addNode(nodeInfo: NodeInfo) {
@@ -28,7 +29,10 @@ export class NodeService {
     return this.nodes;
   }
 
-  getNode(ipAddress: string) {
-    return this.nodes.find((node) => node.ip === ipAddress);
+  getTusPort(ip: string, port: number) {
+    const node = this.nodes.find(
+      (node) => node.ip === ip && node.appPort === port,
+    );
+    return node.tusPort;
   }
 }
